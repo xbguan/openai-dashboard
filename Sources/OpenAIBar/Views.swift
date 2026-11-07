@@ -298,6 +298,10 @@ struct MenuContentView: View {
         }
         .frame(width: UI.panelWidth, height: UI.panelHeight)
         .background(PanelBackground())
+        .overlay(alignment: .top) {
+            UpdateErrorToast(updates: model.updates)
+                .padding(.top, 14)
+        }
         .tint(Color.brand(scheme))
         .onAppear {
             model.refreshCreditOnPanelOpen()
@@ -1223,28 +1227,43 @@ private struct SettingsFieldSurface: ViewModifier {
 
 private struct UpdateVersionRow: View {
     @ObservedObject var updates: UpdateManager
-    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                Text("版本：\(updates.currentVersion)")
-                Spacer()
-                Button(updates.status.actionTitle) { updates.performPrimaryAction() }
-                    .disabled(updates.status == .checking)
-            }
-            switch updates.status {
-            case .current:
-                Text("当前已是最新版本")
-                    .foregroundStyle(TextTone.secondary(scheme))
-            case .failed:
-                Text("检查失败，请确认能够访问 GitHub 后重试。")
-                    .foregroundStyle(Color.orange)
-            case .idle, .checking, .available:
-                EmptyView()
-            }
+        HStack {
+            Text("版本：\(updates.currentVersion)")
+            Spacer()
+            Button(updates.status.actionTitle) { updates.performPrimaryAction() }
+                .disabled(updates.status == .checking)
         }
         .font(.system(size: 13))
+    }
+}
+
+private struct UpdateErrorToast: View {
+    @ObservedObject var updates: UpdateManager
+    @Environment(\.colorScheme) private var scheme
+    @State private var visible = false
+
+    var body: some View {
+        ZStack {
+            if visible {
+                Label("检查更新失败，请确认能够访问 GitHub 后重试。", systemImage: "exclamationmark.circle")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Glass.urgent(scheme))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .glassCard(radius: 12, elevated: true)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .allowsHitTesting(false)
+        .animation(.easeOut(duration: 0.2), value: visible)
+        .task(id: updates.status) {
+            visible = updates.status == .failed
+            guard visible else { return }
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            if !Task.isCancelled { visible = false }
+        }
     }
 }
 
@@ -1279,20 +1298,10 @@ struct SettingsForm: View {
     private var groups: some View {
         VStack(alignment: .leading, spacing: 10) {
             section("通用", icon: "slider.horizontal.3") {
+                UpdateVersionRow(updates: model.updates)
                 AppearanceRow(selection: model.config.appearanceMode) { mode in
                     model.update { $0.appearanceMode = mode }
                 }
-                Divider()
-                HStack {
-                    Text("在程序坞显示")
-                    Spacer()
-                    Toggle("在程序坞显示", isOn: Binding(
-                        get: { model.config.showInDock },
-                        set: { value in model.update { $0.showInDock = value } }
-                    ))
-                        .labelsHidden().toggleStyle(.switch).controlSize(.small)
-                }
-                UpdateVersionRow(updates: model.updates)
                 row("自动刷新间隔") {
                     Menu {
                         ForEach([5, 15, 30, 60], id: \.self) { minutes in
@@ -1318,6 +1327,16 @@ struct SettingsForm: View {
                     .accessibilityLabel("自动刷新间隔，\(model.config.refreshMinutes) 分钟")
                 }
                 hint("按此间隔更新所有已连接的数据源，也可以点击左栏顶部手动刷新。")
+                Divider()
+                HStack {
+                    Text("在程序坞显示")
+                    Spacer()
+                    Toggle("在程序坞显示", isOn: Binding(
+                        get: { model.config.showInDock },
+                        set: { value in model.update { $0.showInDock = value } }
+                    ))
+                        .labelsHidden().toggleStyle(.switch).controlSize(.small)
+                }
             }
             section("API 用量", icon: "chevron.left.forwardslash.chevron.right") {
                 row("Admin Key") {
