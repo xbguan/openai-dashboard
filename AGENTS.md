@@ -30,9 +30,9 @@
 
 ### 1.2 GitHub Release 同步
 
-- 本仓库独立维护 Release；标签使用 `openai-dashboard-v<版本>`，每条 Release 附当前版本的一个 DMG 和签名的 `appcast.xml`。`dist/` 仍只保留一个 DMG，更新清单由打包脚本生成于 `.build/release/appcast.xml`。
+- 本仓库独立维护 Release；标签使用 `openai-dashboard-v<版本>`，每条 Release 附当前版本的一个 DMG 和签名的 `appcast.xml`。`dist/` 仍只保留一个中文名 DMG；打包脚本在 `.build/release/` 生成同内容的英文名 `OpenAI-Dashboard-<版本>.dmg` 和更新清单，发布时上传这两个文件（GitHub 会改写中文附件名）。
 - 改动完成后先在本地提交并验证。只有收到用户明确的「推送并发布」通知，才推送代码并在推送成功后更新 Release；若用户自行推送，则等用户明确通知「已推送，发布」后再更新 Release。不得仅因检测到远端更新自动发布。
-- 推送本项目的代码、资源、构建或打包变更前，完成升版、重新构建和上述校验；推送成功后创建草稿 Release，上传 `dist/` 中的唯一 DMG 与 `.build/release/appcast.xml`，核对附件可下载、DMG 的 SHA-256 与本地文件一致、清单指向该 DMG 且签名有效，再发布 Release。
+- 推送本项目的代码、资源、构建或打包变更前，完成升版、重新构建和上述校验；推送成功后创建草稿 Release，上传 `.build/release/` 中的英文名 DMG 与 `appcast.xml`，核对附件可下载、DMG 的 SHA-256 与 `dist/` 中的文件一致、清单指向该 DMG 且签名有效，再发布 Release。
 - 新 Release 核对通过后，只删除本项目旧版本的 Release 及其标签。仓库当前文件与 GitHub Releases 均只保留本项目最新的一个 DMG，旧版本仍可从 git 历史恢复。
 - 仅推送文档或规约变更、DMG 内容未变时，不升版或重复上传 DMG；更新本项目现有 Release 的说明，保持下载附件不变。
 

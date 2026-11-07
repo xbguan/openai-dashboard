@@ -96,14 +96,16 @@ hdiutil verify "$OUT" 2>&1 | tail -2 | sed 's/^/    /'
 
 echo "==> 生成并签名更新清单"
 FEED_DIR=".build/update-feed"
+RELEASE_ASSET="OpenAI-Dashboard-${VERSION}.dmg"
 rm -rf "$FEED_DIR"
 mkdir -p "$FEED_DIR" ".build/release"
 rm -f ".build/release/appcast.xml"
-cp "$OUT" "$FEED_DIR/"
+cp "$OUT" "$FEED_DIR/$RELEASE_ASSET"
 Tools/sparkle/generate_appcast \
   --download-url-prefix "https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v${VERSION}/" \
   -o "$FEED_DIR/appcast.xml" "$FEED_DIR"
 cp "$FEED_DIR/appcast.xml" ".build/release/appcast.xml"
+cp "$FEED_DIR/$RELEASE_ASSET" ".build/release/$RELEASE_ASSET"
 rm -rf "$FEED_DIR"
 
 echo ""

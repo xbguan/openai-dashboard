@@ -200,7 +200,7 @@ cd "/Users/xbguan/project/openai-dashboard"
 
 * `.build/bundle/OpenAI 仪表盘.app` —— 可运行的原件（不再往项目根拷 .app，见下文）
 * `dist/OpenAI 仪表盘-<版本>.dmg` —— 分发包
-* `.build/release/appcast.xml` —— Sparkle 签名的更新清单，发布时与 DMG 一起作为 Release 附件上传
+* `.build/release/appcast.xml` 与 `.build/release/OpenAI-Dashboard-<版本>.dmg` —— 发布时上传的签名更新清单与英文名 DMG 附件；DMG 内容与 `dist/` 中的中文名文件相同
 
 === 项目规约
 
