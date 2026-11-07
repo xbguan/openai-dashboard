@@ -1227,15 +1227,24 @@ private struct SettingsFieldSurface: ViewModifier {
 
 private struct UpdateVersionRow: View {
     @ObservedObject var updates: UpdateManager
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         HStack {
             Text("版本：\(updates.currentVersion)")
             Spacer()
-            Button(updates.status.actionTitle) { updates.performPrimaryAction() }
-                .disabled(updates.status == .checking)
+            Button { updates.performPrimaryAction() } label: {
+                Text(updates.status.actionTitle)
+                    .foregroundStyle(updateTextColor)
+            }
+            .disabled(updates.status == .checking)
         }
         .font(.system(size: 13))
+    }
+
+    private var updateTextColor: Color {
+        if case .available = updates.status { return Color.brand(scheme) }
+        return .primary
     }
 }
 
