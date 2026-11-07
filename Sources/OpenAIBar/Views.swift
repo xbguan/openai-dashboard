@@ -1256,6 +1256,15 @@ struct SettingsForm: View {
                     model.update { $0.appearanceMode = mode }
                 }
                 Divider()
+                HStack {
+                    Text("在程序坞显示")
+                    Spacer()
+                    Toggle("在程序坞显示", isOn: Binding(
+                        get: { model.config.showInDock },
+                        set: { value in model.update { $0.showInDock = value } }
+                    ))
+                        .labelsHidden().toggleStyle(.switch).controlSize(.small)
+                }
                 row("自动刷新间隔") {
                     Menu {
                         ForEach([5, 15, 30, 60], id: \.self) { minutes in

@@ -87,6 +87,7 @@ final class AppModel: ObservableObject {
     init() {
         self.config = ConfigStore.user.load()
         NSApplication.shared.appearance = config.appearanceMode.appearance
+        NSApplication.shared.setActivationPolicy(config.showInDock ? .regular : .accessory)
         creditBridge.onChange = { [weak self] in self?.syncCredit() }
         subscriptionBridge.onChange = { [weak self] in self?.syncSubscription() }
         if config.showCredit { creditBridge.start() }
@@ -231,6 +232,9 @@ final class AppModel: ObservableObject {
         guard !isDemo && !suppressPersist else { return }
         if old.appearanceMode != config.appearanceMode {
             NSApplication.shared.appearance = config.appearanceMode.appearance
+        }
+        if old.showInDock != config.showInDock {
+            NSApplication.shared.setActivationPolicy(config.showInDock ? .regular : .accessory)
         }
         let keyChanged = old.adminKey != config.adminKey
 

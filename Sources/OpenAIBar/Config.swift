@@ -8,6 +8,7 @@ enum AppearanceMode: String, Codable, CaseIterable {
 /// 文件：~/Library/Application Support/OpenAIBar/config.json（权限 600）
 struct AppConfig: Codable {
     var appearanceMode: AppearanceMode = .system
+    var showInDock: Bool = true
     var refreshMinutes: Int = 5
 
     /// 是否启用「实时余额」：用平台登录态读取，需用户显式打开
@@ -28,6 +29,7 @@ struct AppConfig: Codable {
 
     enum CodingKeys: String, CodingKey {
         case appearanceMode
+        case showInDock
         case refreshMinutes
         case showCredit
         case showSubscription
@@ -42,6 +44,7 @@ struct AppConfig: Codable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         appearanceMode = (try? c.decode(AppearanceMode.self, forKey: .appearanceMode)) ?? .system
+        showInDock = try c.decodeIfPresent(Bool.self, forKey: .showInDock) ?? true
         refreshMinutes = max(try c.decodeIfPresent(Int.self, forKey: .refreshMinutes) ?? 5, 5)
         showCredit = try c.decodeIfPresent(Bool.self, forKey: .showCredit) ?? false
         showSubscription = try c.decodeIfPresent(Bool.self, forKey: .showSubscription) ?? false
