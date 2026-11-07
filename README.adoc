@@ -2,6 +2,7 @@
 :sectnums:
 :toc: left
 :toclevels: 2
+:imagesdir: docs
 
 一个原生 SwiftUI 菜单栏小工具，随时查看 OpenAI *API 平台* 组织级的花费、token 用量与额度。
 
