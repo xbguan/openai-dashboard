@@ -66,6 +66,10 @@ cp Resources/Info.plist "${BUNDLE_DIR}/Contents/Info.plist"
 cp Resources/AppIcon.icns "${BUNDLE_DIR}/Contents/Resources/AppIcon.icns"
 mkdir -p "${BUNDLE_DIR}/Contents/Frameworks"
 cp -R Vendor/Sparkle/Sparkle.framework "${BUNDLE_DIR}/Contents/Frameworks/"
+install_name_tool -change \
+  "@rpath/Sparkle.framework/Versions/B/Sparkle" \
+  "@executable_path/../Frameworks/Sparkle.framework/Versions/B/Sparkle" \
+  "${BUNDLE_DIR}/Contents/MacOS/${EXEC_NAME}"
 printf 'APPL????' > "${BUNDLE_DIR}/Contents/PkgInfo"
 
 echo "==> 稳定证书签名（本地自签名，避免 ad-hoc 每次签名身份变化导致钥匙串反复弹窗）"

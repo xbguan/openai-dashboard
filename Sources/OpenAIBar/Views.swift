@@ -1256,7 +1256,7 @@ private struct UpdateErrorToast: View {
     var body: some View {
         ZStack {
             if visible {
-                Label("检查更新失败，请确认能够访问 GitHub 后重试。", systemImage: "exclamationmark.circle")
+                Label(updates.errorMessage, systemImage: "exclamationmark.circle")
                     .font(.system(size: 12))
                     .foregroundStyle(Glass.urgent(scheme))
                     .padding(.horizontal, 12)

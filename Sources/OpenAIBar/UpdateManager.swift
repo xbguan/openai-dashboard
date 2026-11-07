@@ -5,6 +5,7 @@ import Sparkle
 @MainActor
 final class UpdateManager: NSObject, ObservableObject, SPUUpdaterDelegate {
     @Published private(set) var status: UpdateStatus = .idle
+    @Published private(set) var errorMessage = "检查更新失败，请稍后重试。"
 
     var currentVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
@@ -60,7 +61,12 @@ final class UpdateManager: NSObject, ObservableObject, SPUUpdaterDelegate {
                  didFinishUpdateCycleFor updateCheck: SPUUpdateCheck,
                  error: (any Error)?) {
         if case .checking = status {
-            status = error == nil ? .current : .failed
+            if let error {
+                errorMessage = UpdateCheckFailure.message(for: error)
+                status = .failed
+            } else {
+                status = .current
+            }
         }
     }
 }
