@@ -175,3 +175,10 @@ lipo -create .build/x86_64/release/OpenAIBar .build/arm64/release/OpenAIBar -out
 - OpenAI 改页面结构 → DOM 兜底失效，但接口钩子通常还在
 - 接口改名 → 两条路同时失效，表现为读取超时（30s），需按新接口名更新 `hookJS` 里的 `isCreditURL`
 
+## 9. 项目知识库
+
+- 拆分前的历史资料保留在 `/Users/xbguan/project/codex-knowledge-base/grocery`。先查 `sources/index.md`，只按需读取与 OpenAI 仪表盘有关的纪要和成果；不把该目录当作拆分后新资料的归属地。
+- 本项目知识库目录为 `/Users/xbguan/project/codex-knowledge-base/openai-dashboard`。目录建档后，先查 `sources/index.md` 定位来源，再按需读取长期文档和来源文件，不扫描整个知识库。
+- 同一对话涉及多个项目时，按内容分别归属。拆分后属于 OpenAI 仪表盘的新事实和成果归本项目知识库，不因对话最初属于 grocery 而继续记入 grocery；不批量搬迁已归档的历史资料。
+- 每日增量整理和新项目建档遵循 `/Users/xbguan/project/codex-knowledge-base/AGENTS.md`。若本项目目录尚未建立，按其中的新项目规则建档，不假定已有资料。知识库只整理昨日及更早已结束的对话；当天事实以当前对话和本仓库现状为准。
+
