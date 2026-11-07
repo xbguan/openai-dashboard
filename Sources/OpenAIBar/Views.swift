@@ -1221,6 +1221,33 @@ private struct SettingsFieldSurface: ViewModifier {
     }
 }
 
+private struct UpdateVersionRow: View {
+    @ObservedObject var updates: UpdateManager
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text("版本：\(updates.currentVersion)")
+                Spacer()
+                Button(updates.status.actionTitle) { updates.performPrimaryAction() }
+                    .disabled(updates.status == .checking)
+            }
+            switch updates.status {
+            case .current:
+                Text("当前已是最新版本")
+                    .foregroundStyle(TextTone.secondary(scheme))
+            case .failed:
+                Text("检查失败，请确认能够访问 GitHub 后重试。")
+                    .foregroundStyle(Color.orange)
+            case .idle, .checking, .available:
+                EmptyView()
+            }
+        }
+        .font(.system(size: 13))
+    }
+}
+
 struct SettingsForm: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.colorScheme) private var scheme
@@ -1265,6 +1292,7 @@ struct SettingsForm: View {
                     ))
                         .labelsHidden().toggleStyle(.switch).controlSize(.small)
                 }
+                UpdateVersionRow(updates: model.updates)
                 row("自动刷新间隔") {
                     Menu {
                         ForEach([5, 15, 30, 60], id: \.self) { minutes in

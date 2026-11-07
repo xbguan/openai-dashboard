@@ -7,7 +7,13 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "OpenAIBar",
-            path: "Sources/OpenAIBar"
+            path: "Sources/OpenAIBar",
+            swiftSettings: [.unsafeFlags(["-F", "Vendor/Sparkle"])],
+            linkerSettings: [
+                .linkedFramework("Sparkle"),
+                .unsafeFlags(["-F", "Vendor/Sparkle", "-Xlinker", "-rpath",
+                              "-Xlinker", "@executable_path/../Frameworks"])
+            ]
         )
     ]
 )

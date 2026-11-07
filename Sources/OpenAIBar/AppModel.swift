@@ -19,6 +19,7 @@ struct LiveCredit {
 
 @MainActor
 final class AppModel: ObservableObject {
+    let updates = UpdateManager()
     @Published var config: AppConfig {
         didSet { persistIfNeeded(old: oldValue) }
     }
@@ -88,6 +89,7 @@ final class AppModel: ObservableObject {
         self.config = ConfigStore.user.load()
         NSApplication.shared.appearance = config.appearanceMode.appearance
         NSApplication.shared.setActivationPolicy(config.showInDock ? .regular : .accessory)
+        updates.start()
         creditBridge.onChange = { [weak self] in self?.syncCredit() }
         subscriptionBridge.onChange = { [weak self] in self?.syncSubscription() }
         if config.showCredit { creditBridge.start() }

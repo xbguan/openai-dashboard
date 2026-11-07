@@ -30,9 +30,9 @@
 
 ### 1.2 GitHub Release 同步
 
-- 本仓库独立维护 Release；标签使用 `openai-dashboard-v<版本>`，每条 Release 只附当前版本的一个 DMG。
+- 本仓库独立维护 Release；标签使用 `openai-dashboard-v<版本>`，每条 Release 附当前版本的一个 DMG 和签名的 `appcast.xml`。`dist/` 仍只保留一个 DMG，更新清单由打包脚本生成于 `.build/release/appcast.xml`。
 - 改动完成后先在本地提交并验证。只有收到用户明确的「推送并发布」通知，才推送代码并在推送成功后更新 Release；若用户自行推送，则等用户明确通知「已推送，发布」后再更新 Release。不得仅因检测到远端更新自动发布。
-- 推送本项目的代码、资源、构建或打包变更前，完成升版、重新构建和上述校验；推送成功后创建对应版本的 Release，上传 `dist/` 中的唯一 DMG，并核对附件可下载、SHA-256 与本地文件一致。
+- 推送本项目的代码、资源、构建或打包变更前，完成升版、重新构建和上述校验；推送成功后创建草稿 Release，上传 `dist/` 中的唯一 DMG 与 `.build/release/appcast.xml`，核对附件可下载、DMG 的 SHA-256 与本地文件一致、清单指向该 DMG 且签名有效，再发布 Release。
 - 新 Release 核对通过后，只删除本项目旧版本的 Release 及其标签。仓库当前文件与 GitHub Releases 均只保留本项目最新的一个 DMG，旧版本仍可从 git 历史恢复。
 - 仅推送文档或规约变更、DMG 内容未变时，不升版或重复上传 DMG；更新本项目现有 Release 的说明，保持下载附件不变。
 
@@ -48,7 +48,7 @@
   lipo -archs "dist/.../OpenAI 仪表盘.app/Contents/MacOS/OpenAIBar"
   # 期望输出：x86_64 arm64
   ```
-- 依赖只能来自 `/usr/lib`、`/System/Library`；`otool -L` 中 `@rpath` 依赖数必须为 0
+- 依赖只能来自 `/usr/lib`、`/System/Library`，以及 App 内签名的 `Sparkle.framework`；`otool -L` 中只允许 `@rpath/Sparkle.framework` 这一项 `@rpath` 依赖
 
 构建方式（本机只有 Command Line Tools，`swift build --arch a --arch b` 不可用）：
 
@@ -77,6 +77,7 @@ lipo -create .build/x86_64/release/OpenAIBar .build/arm64/release/OpenAIBar -out
 - 保留内联提示和外观预览卡。右侧设置正文可上下滚动，但不显示滚动条。导航选中态用品牌色，键盘导航时保留可见焦点。参照 [Apple 无障碍设计指南](https://developer.apple.com/design/human-interface-guidelines/accessibility) 检查两种外观下的可读性和键盘操作。
 - 以完整 API 页为尺寸基准，常规屏幕一屏展示；可视高度不足时优先保证内容可达，仅右侧允许滚动。
 - 系统菜单栏只显示状态图标，金额只在 API 内容区展示。
+- 设置「通用」组显示当前版本和更新按钮。启动时、运行期间每 8 小时自动查询更新；未发现新版时显示「检查更新」，发现新版时显示「更新至 vX.X.X」。查询不下载，点击更新按钮后才由 Sparkle 下载、安装并在用户确认时重启。
 
 ### 图标规范
 
@@ -142,6 +143,13 @@ lipo -create .build/x86_64/release/OpenAIBar .build/arm64/release/OpenAIBar -out
   - ⚠️ **证书签名必须前台 + 沙箱外跑 `make-dmg.sh`**：codesign 要访问钥匙串，沙箱内会报 `errSecInternalComponent`（`login.keychain-db file-delete` 被拦）。后台任务（run_in_background）里沙箱绕过不生效。
 - 本机无 Apple 开发者证书，做不了公证。用户首次打开需右键 → 打开，或 `xattr -cr "/Applications/OpenAI 仪表盘.app"`
 - 这段说明已印在 DMG 背景图底部，无需额外告知
+
+### 7.1 Sparkle 更新签名
+
+- Sparkle 2.10.1 的官方发布包存于 `Vendor/Sparkle/` 与 `Tools/sparkle/`；本项目只允许它作为额外的内嵌框架依赖，必须保留通用架构和框架内符号链接。
+- 更新清单固定读取 `https://github.com/xbguan/openai-dashboard/releases/latest/download/appcast.xml`。网络不通时提示失败并允许重试，不使用未受控的第三方镜像作为运行时更新源。
+- 更新包与更新清单使用 Sparkle EdDSA 签名。公钥在 `Resources/Info.plist`；私钥只存于发布机器登录钥匙串，不得提交到仓库、DMG 或日志。换机器前必须安全备份并迁移该密钥。
+- 1.16.0 及更早版本没有更新器，需手动安装一次含 Sparkle 的 1.17.0。之后每次发布须用实际旧版与新版 DMG 验证检查、下载、退出、替换、重启和配置保留；需要管理员权限或网络失败时不得误报更新成功。
 
 ## 8. 余额读取（平台登录态）
 
