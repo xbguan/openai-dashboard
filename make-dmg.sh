@@ -102,7 +102,7 @@ mkdir -p "$FEED_DIR" ".build/release"
 rm -f ".build/release/appcast.xml"
 cp "$OUT" "$FEED_DIR/$RELEASE_ASSET"
 Tools/sparkle/generate_appcast \
-  --download-url-prefix "https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v${VERSION}/" \
+  --download-url-prefix "https://gitee.com/baoyeguan/openai-dashboard/releases/download/openai-dashboard-v${VERSION}/" \
   -o "$FEED_DIR/appcast.xml" "$FEED_DIR"
 cp "$FEED_DIR/appcast.xml" ".build/release/appcast.xml"
 cp "$FEED_DIR/$RELEASE_ASSET" ".build/release/$RELEASE_ASSET"
