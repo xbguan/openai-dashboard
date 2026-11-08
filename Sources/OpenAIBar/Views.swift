@@ -269,6 +269,7 @@ struct MenuContentView: View {
     @State private var navigationMonitor: Any?
     @State private var page: Page
     @State private var showingPlanInfo = false
+    @State private var showingExitConfirmation = false
     @State private var costRange: CostRange = .last7
 
     init(initialPage: Page = .usage) {
@@ -303,6 +304,10 @@ struct MenuContentView: View {
                 .padding(.top, 14)
         }
         .tint(Color.brand(scheme))
+        .alert("确定退出 OpenAI 仪表盘？", isPresented: $showingExitConfirmation) {
+            Button("取消", role: .cancel) { }
+            Button("退出", role: .destructive) { NSApplication.shared.terminate(nil) }
+        }
         .onAppear {
             model.refreshCreditOnPanelOpen()
             guard navigationMonitor == nil else { return }
@@ -351,7 +356,7 @@ struct MenuContentView: View {
                     .foregroundStyle(page == .settings ? Color.brand(scheme) : .primary)
                     .accessibilityAddTraits(page == .settings ? .isSelected : [])
                 Divider().frame(height: 14)
-                Button { NSApplication.shared.terminate(nil) } label: {
+                Button { showingExitConfirmation = true } label: {
                     sidebarActionLabel("退出", icon: "rectangle.portrait.and.arrow.right")
                 }
             }
