@@ -299,7 +299,7 @@ struct MenuContentView: View {
         .frame(width: UI.panelWidth, height: UI.panelHeight)
         .background(PanelBackground())
         .overlay(alignment: .top) {
-            UpdateErrorToast(updates: model.updates)
+            UpdateCheckToast(updates: model.updates)
                 .padding(.top, 14)
         }
         .tint(Color.brand(scheme))
@@ -1248,7 +1248,7 @@ private struct UpdateVersionRow: View {
     }
 }
 
-private struct UpdateErrorToast: View {
+private struct UpdateCheckToast: View {
     @ObservedObject var updates: UpdateManager
     @Environment(\.colorScheme) private var scheme
     @State private var visible = false
@@ -1256,9 +1256,9 @@ private struct UpdateErrorToast: View {
     var body: some View {
         ZStack {
             if visible {
-                Label(updates.errorMessage, systemImage: "exclamationmark.circle")
+                Label(message, systemImage: updates.status == .failed ? "exclamationmark.circle" : "checkmark.circle")
                     .font(.system(size: 12))
-                    .foregroundStyle(Glass.urgent(scheme))
+                    .foregroundStyle(updates.status == .failed ? Glass.urgent(scheme) : Color.brand(scheme))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 9)
                     .glassCard(radius: 12, elevated: true)
@@ -1268,11 +1268,15 @@ private struct UpdateErrorToast: View {
         .allowsHitTesting(false)
         .animation(.easeOut(duration: 0.2), value: visible)
         .task(id: updates.status) {
-            visible = updates.status == .failed
+            visible = updates.status == .failed || (updates.status == .current && updates.lastCheckWasManual)
             guard visible else { return }
             try? await Task.sleep(nanoseconds: 4_000_000_000)
             if !Task.isCancelled { visible = false }
         }
+    }
+
+    private var message: String {
+        updates.status == .failed ? updates.errorMessage : "已是最新版本"
     }
 }
 

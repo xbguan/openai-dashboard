@@ -61,7 +61,19 @@ struct AppConfig: Codable {
 }
 
 struct ConfigStore {
-    static let user = ConfigStore(base: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0])
+    static let user: ConfigStore = {
+        let args = CommandLine.arguments
+        if let index = args.firstIndex(of: "--qa-application-support") {
+            precondition(index + 1 < args.count, "Missing QA application support path")
+            let base = URL(fileURLWithPath: args[index + 1], isDirectory: true)
+                .standardizedFileURL.resolvingSymlinksInPath()
+            precondition(base.path.hasPrefix("/tmp/") || base.path.hasPrefix("/private/tmp/"),
+                         "QA data must stay in the temporary directory")
+            return ConfigStore(base: base)
+        }
+        return ConfigStore(base: FileManager.default.urls(for: .applicationSupportDirectory,
+                                                           in: .userDomainMask)[0])
+    }()
     let base: URL
     var directory: URL { base.appendingPathComponent("OpenAIApiDashboard", isDirectory: true) }
     var credentials: KeyStore { KeyStore(directory: directory.appendingPathComponent("Credentials")) }
