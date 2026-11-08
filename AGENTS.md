@@ -37,7 +37,7 @@
 - 本仓库在 Gitee 独立维护 Release；标签使用 `openai-dashboard-v<版本>`，每条 Release 附当前版本的一个英文名 DMG。`dist/` 仍只保留一个中文名 DMG；打包脚本在 `.build/release/` 生成同内容的 `OpenAI-Dashboard-<版本>.dmg` 和签名的 `appcast.xml`。
 - 改动完成后先在本地提交并验证。只有收到用户明确的「推送并发布」通知，才推送代码并在推送成功后更新 Gitee Release；若用户自行推送，则等用户明确通知「已推送，发布」后再更新 Release。不得仅因检测到远端更新自动发布。GitHub 上已有内容保持原样，后续不向 GitHub 推送或发布，由用户自行决定何时删除。
 - 推送本项目的代码、资源、构建或打包变更前，完成升版、重新构建和上述校验；推送成功后在 Gitee 创建 Release，上传 `.build/release/` 中的英文名 DMG，核对附件可下载、DMG 的 SHA-256 与 `dist/` 中的文件一致、清单指向该 DMG 且签名有效。确认 Release 可用后，再把 `.build/release/appcast.xml` 发布为 Gitee `updates` 分支的 `appcast.xml`，验证匿名访问的原始 XML 与 Sparkle 更新检查，避免提前向用户展示尚未可下载的版本。
-- 新 Release 与更新清单核对通过后，只删除 Gitee 上本项目旧版本的 Release 及其标签。`dist/` 与 Gitee Releases 均只保留本项目最新的一个 DMG，旧版本仍可从 git 历史恢复。
+- 新 Release 与更新清单核对通过后，保留 Gitee 上本项目的历史 Release 及其标签，供旧版本下载和回退。`dist/` 仍只保留当前最新版本的一个 DMG。
 - 仅推送文档或规约变更、DMG 内容未变时，不升版或重复上传 DMG；更新 Gitee 上本项目现有 Release 的说明，保持下载附件不变。
 
 ## 2. 架构规约：必须同时支持 Intel 与 M 芯片
