@@ -8,10 +8,9 @@
 
 它服务的是 API 平台（platform.openai.com）的管理员视角，与 ChatGPT 订阅是两套体系，详见下文。
 
-== 已安装
+== 安装与数据位置
 
 * 应用位置：`/Applications/OpenAI 仪表盘.app`（放 `~/Applications/` 同样能用，卸载脚本两处都会找）
-* 源码工程：`/Users/xbguan/project/openai-dashboard/`
 * 配置目录：`~/Library/Application Support/OpenAIApiDashboard/`
 * Bundle ID：`com.xbguan.openai-api-dashboard`
 * 安装包：`dist/OpenAI 仪表盘-1.17.5.dmg`（Intel / Apple 芯片通用）
@@ -184,10 +183,10 @@ Admin Key 存在 *该用户的 Application Support 目录* 里，不随安装包
 
 == 构建
 
+在克隆的仓库根目录运行：
+
 [source,bash]
 ----
-cd "/Users/xbguan/project/openai-dashboard"
-
 ./build.sh                 # 只编译本机架构（日常开发，增量几秒）
 ./build.sh --universal     # Intel + Apple 芯片通用版本
 ./build.sh --install       # 编译通用版并安装到 /Applications
@@ -244,9 +243,10 @@ BIN=".build/bundle/OpenAI 仪表盘.app/Contents/MacOS/OpenAIBar"
 
 === 一条命令搞定
 
+在克隆的仓库根目录运行：
+
 [source,bash]
 ----
-cd "/Users/xbguan/project/openai-dashboard"
 ./uninstall.sh              # 列出将删除的内容，确认后执行
 ./uninstall.sh --dry-run    # 只看不删
 ----
