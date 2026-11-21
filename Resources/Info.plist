@@ -23,7 +23,7 @@
     <key>CFBundleVersion</key>
     <string>79</string>
     <key>SUFeedURL</key>
-    <string>https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml</string>
+    <string>https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml</string>
     <key>SUPublicEDKey</key>
     <string>Os/Vy3rYQc18mMiPrldbhC8l8geQYu7slcsg6OMOziM=</string>
     <key>SUEnableAutomaticChecks</key>

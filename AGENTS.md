@@ -36,7 +36,7 @@
 
 - 本仓库在 GitHub `xbguan/openai-dashboard` 维护代码与 Release；标签使用 `openai-dashboard-v<版本>`，每条 Release 附当前版本的一个英文名 DMG。`dist/` 仍只保留一个中文名 DMG；打包脚本在 `.build/release/` 生成同内容的 `OpenAI-Dashboard-<版本>.dmg` 和签名的 `appcast.xml`。
 - 改动完成后先在本地提交并验证。只有收到用户明确的「推送并发布」通知，才推送代码并在推送成功后更新 GitHub Release；若用户自行推送，则等用户明确通知「已推送，发布」后再更新 Release。不得仅因检测到远端更新自动发布。
-- 推送本项目的代码、资源、构建或打包变更前，完成升版、重新构建和上述校验；推送成功后在 GitHub 创建 Release，上传 `.build/release/` 中的英文名 DMG，核对附件可匿名下载、DMG 的 SHA-256 与 `dist/` 中的文件一致、清单指向该 DMG 且签名有效。确认 Release 可用后，再把 `.build/release/appcast.xml` 发布为 GitHub `updates` 分支的 `appcast.xml`，验证匿名访问的原始 XML 与 Sparkle 更新检查，避免提前向用户展示尚未可下载的版本。
+- 推送本项目的代码、资源、构建或打包变更前，完成升版、重新构建和上述校验；推送成功后在 GitHub 创建 Release，上传 `.build/release/` 中的英文名 DMG，核对附件可匿名下载、DMG 的 SHA-256 与 `dist/` 中的文件一致、清单指向该 DMG 且签名有效。确认 Release 可用后，再把 `.build/release/appcast.xml` 提交为 GitHub `main` 分支根目录的 `appcast.xml` 并推送，验证匿名访问的原始 XML 与 Sparkle 更新检查，避免提前向用户展示尚未可下载的版本。
 - 新 Release 与更新清单核对通过后，保留 GitHub 上本项目的历史 Release 及其标签，供旧版本下载和回退。Gitee 上的历史内容保持原样，后续不再向 Gitee 推送代码、标签、Release 或更新清单。`dist/` 仍只保留当前最新版本的一个 DMG。
 - 1.17.4～1.17.6 仍读取 Gitee 更新清单，切换到 GitHub 更新源时需手动安装一次 1.18.0 或更新版本。
 - 仅推送文档或规约变更、DMG 内容未变时，不升版、不重复上传 DMG，也不要求更新已有 Release 的说明。
@@ -152,7 +152,7 @@ lipo -create .build/x86_64/release/OpenAIBar .build/arm64/release/OpenAIBar -out
 ### 7.1 Sparkle 更新签名
 
 - Sparkle 2.10.1 的官方发布包存于 `Vendor/Sparkle/` 与 `Tools/sparkle/`；本项目只允许它作为额外的内嵌框架依赖，必须保留通用架构和框架内符号链接。
-- 更新清单固定读取 `https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml`；清单中的 DMG 使用 GitHub Release 按版本标签下载地址。网络不通时提示失败并允许重试，不使用未受控的第三方镜像作为运行时更新源。1.17.4～1.17.6 仍读取 Gitee 清单，迁移时需手动安装一次 1.18.0 或更新版本。
+- 更新清单固定读取 `https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml`；清单中的 DMG 使用 GitHub Release 按版本标签下载地址。网络不通时提示失败并允许重试，不使用未受控的第三方镜像作为运行时更新源。1.17.4～1.17.6 仍读取 Gitee 清单，迁移时需手动安装一次 1.18.0 或更新版本。
 - 更新包与更新清单使用 Sparkle EdDSA 签名。公钥在 `Resources/Info.plist`；私钥只存于发布机器登录钥匙串，不得提交到仓库、DMG 或日志。换机器前必须安全备份并迁移该密钥。
 - 1.16.0 及更早版本没有更新器，需手动安装一次当前版本。之后每次发布须在隔离测试环境用实际旧版与新版 DMG 验证检查、下载、退出、替换、重启和配置保留；需要管理员权限或网络失败时不得误报更新成功。不得为验收操作本机正式 App。
 

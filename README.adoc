@@ -199,7 +199,7 @@ Admin Key 存在 *该用户的 Application Support 目录* 里，不随安装包
 
 * `.build/bundle/OpenAI 仪表盘.app` —— 可运行的原件（不再往项目根拷 .app，见下文）
 * `dist/OpenAI 仪表盘-<版本>.dmg` —— 分发包
-* `.build/release/appcast.xml` 与 `.build/release/OpenAI-Dashboard-<版本>.dmg` —— 发布用的签名更新清单与英文名 DMG 附件；DMG 内容与 `dist/` 中的中文名文件相同。GitHub Release 上传 DMG 后，将签名清单发布到 GitHub `updates` 分支供 Sparkle 读取
+* `.build/release/appcast.xml` 与 `.build/release/OpenAI-Dashboard-<版本>.dmg` —— 发布用的签名更新清单与英文名 DMG 附件；DMG 内容与 `dist/` 中的中文名文件相同。GitHub Release 上传并验证 DMG 后，将签名清单提交到 GitHub `main` 分支根目录供 Sparkle 读取
 
 === 项目规约
 

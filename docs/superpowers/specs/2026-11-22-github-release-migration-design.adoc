@@ -21,7 +21,7 @@ Gitee 版本更新服务稳定性不足。本次发布将项目主仓库、Spark
 新版应用的 `SUFeedURL` 使用：
 
 ----
-https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml
+https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml
 ----
 
 发布脚本生成的 appcast 使用 GitHub Release 下载前缀：
@@ -63,7 +63,7 @@ GitHub Release 只附加英文文件名 `OpenAI-Dashboard-1.18.0.dmg`。本地 `
 . 推送 `openai-dashboard-v1.18.0` 标签。
 . 创建 GitHub Release，上传 `.build/release/OpenAI-Dashboard-1.18.0.dmg`。
 . 验证 Release 附件可匿名下载，且其 SHA-256 与 `dist/` 中的 DMG 一致。
-. 将 `.build/release/appcast.xml` 发布到 GitHub `updates` 分支。
+. 将 `.build/release/appcast.xml` 提交到 GitHub `main` 分支根目录并推送。
 . 验证原始 XML 可匿名访问、签名有效、下载地址指向已可用的 GitHub Release 附件。
 
 更新清单必须最后发布，避免客户端看到尚不可下载的新版本。
@@ -78,9 +78,9 @@ GitHub Release 只附加英文文件名 `OpenAI-Dashboard-1.18.0.dmg`。本地 `
 
 == 完成标准
 
-* GitHub `main` 与本地发布提交一致，标签指向该提交。
+* GitHub `main` 与本地最终提交一致，发布标签指向包含已验证 DMG 的发布提交。
 * GitHub Release 提供可下载且校验一致的 `1.18.0` DMG。
-* GitHub `updates` 分支提供签名有效的 appcast。
+* GitHub `main/appcast.xml` 提供签名有效的 appcast。
 * 新版应用仅使用 GitHub 更新源。
 * Gitee 未产生本次版本的新提交、标签、Release 或 appcast 变更。
 * 正式 App 未被自动安装或操作。

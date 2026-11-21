@@ -4,7 +4,7 @@
 
 **Goal:** 发布 OpenAI 仪表盘 `1.18.0`，并将主仓库、GitHub Release、Sparkle 更新清单和 DMG 下载地址全部切换到 GitHub。
 
-**Architecture:** 保持应用业务逻辑不变，只调整版本与发布配置。`Resources/Info.plist` 决定新版应用读取的 GitHub appcast，`make-dmg.sh` 生成指向 GitHub Release 的签名清单；代码和标签先推送，Release 附件验证可下载后才发布 `updates/appcast.xml`。
+**Architecture:** 保持应用业务逻辑不变，只调整版本与发布配置。`Resources/Info.plist` 决定新版应用读取的 GitHub appcast，`make-dmg.sh` 生成指向 GitHub Release 的签名清单；代码和标签先推送，Release 附件验证可下载后才把 `appcast.xml` 提交到 `main` 根目录。
 
 **Tech Stack:** Swift 6、SwiftUI、Sparkle 2.10.1、zsh、AsciiDoc、macOS `hdiutil`/`codesign`/`lipo`、Git、GitHub CLI。
 
@@ -33,7 +33,8 @@
 - `Resources/AppIcon.icns`：构建时重新生成；只有内容变化时提交。
 - `dist/OpenAI 仪表盘-1.18.0.dmg`：仓库中保留的唯一发布 DMG。
 - `.build/release/OpenAI-Dashboard-1.18.0.dmg`：GitHub Release 上传附件，不纳入 Git。
-- `.build/release/appcast.xml`：发布到 GitHub `updates` 分支的签名清单，不纳入 `main`。
+- `.build/release/appcast.xml`：构建生成的签名清单，不直接纳入 Git。
+- `appcast.xml`：Release 验证通过后复制到 `main` 根目录并提交。
 
 ### Task 1: 切换版本与发布地址
 
@@ -50,7 +51,7 @@
 ```bash
 test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)" = "1.18.0"
 test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' Resources/Info.plist)" = "79"
-test "$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' Resources/Info.plist)" = "https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml"
+test "$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' Resources/Info.plist)" = "https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml"
 rg -F 'https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v${VERSION}/' make-dmg.sh
 ```
 
@@ -66,7 +67,7 @@ Expected: 前三条因仍为 `1.17.6`、`78`、Gitee URL 而失败，第四条�
 <key>CFBundleVersion</key>
 <string>79</string>
 <key>SUFeedURL</key>
-<string>https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml</string>
+<string>https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml</string>
 ```
 
 将 `make-dmg.sh` 的 `--download-url-prefix` 改为：
@@ -81,7 +82,7 @@ Expected: 前三条因仍为 `1.17.6`、`78`、Gitee URL 而失败，第四条�
 plutil -lint Resources/Info.plist
 test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)" = "1.18.0"
 test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' Resources/Info.plist)" = "79"
-test "$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' Resources/Info.plist)" = "https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml"
+test "$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' Resources/Info.plist)" = "https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml"
 rg -F 'https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v${VERSION}/' make-dmg.sh
 ! rg -F 'gitee.com/baoyeguan/openai-dashboard' Resources/Info.plist make-dmg.sh
 ```
@@ -114,7 +115,7 @@ git commit -m "feat: switch updates to GitHub"
 
 ```bash
 rg -F 'dist/OpenAI 仪表盘-1.18.0.dmg' README.adoc
-rg -F 'raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml' AGENTS.md
+rg -F 'raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml' AGENTS.md
 rg -F 'GitHub Release' README.adoc AGENTS.md
 ! rg -F '后续不向 GitHub 推送或发布' AGENTS.md
 ```
@@ -129,7 +130,7 @@ Expected: 新版本和 GitHub 发布说明找不到，旧的“不向 GitHub”�
 - 标签格式继续使用 `openai-dashboard-v<版本>`。
 - Release 附件为一个英文名 DMG，`dist/` 仍只保留一个中文名 DMG。
 - 只有用户明确要求“推送并发布”才执行 GitHub 推送与 Release。
-- Release 附件可下载且 SHA-256 一致后，才发布 GitHub `updates/appcast.xml`。
+- Release 附件可下载且 SHA-256 一致后，才把签名清单提交为 GitHub `main/appcast.xml`。
 - Gitee 保留历史内容，不再接收后续代码、标签、Release 或 appcast。
 - `1.17.4`～`1.17.6` 用户需手动安装一次 `1.18.0`。
 
@@ -142,7 +143,7 @@ Expected: 新版本和 GitHub 发布说明找不到，旧的“不向 GitHub”�
 - 两处安装包版本从 `1.17.6` 改为 `1.18.0`。
 - “每 8 小时检查 Gitee”改为“每 8 小时检查 GitHub”。
 - 说明 `1.17.4`～`1.17.6` 需要手动安装一次 `1.18.0`。
-- 构建产物说明改为上传 GitHub Release，并把签名清单发布到 GitHub `updates` 分支。
+- 构建产物说明改为上传 GitHub Release，并在验证附件后把签名清单提交到 GitHub `main` 根目录。
 
 - [ ] **Step 4: 渲染 README**
 
@@ -156,7 +157,7 @@ Expected: 退出码 `0`，`docs/README.html` 更新时间变化。
 
 ```bash
 rg -F 'dist/OpenAI 仪表盘-1.18.0.dmg' README.adoc
-rg -F 'https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml' AGENTS.md
+rg -F 'https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml' AGENTS.md
 rg -F 'GitHub Release' README.adoc AGENTS.md
 ! rg -F '后续不向 GitHub 推送或发布' AGENTS.md
 ! rg -F '每 8 小时检查 Gitee' README.adoc
@@ -366,51 +367,42 @@ hdiutil verify "$QA_DOWNLOAD"
 
 Expected: Release 不是草稿或预发布，附件数为 `1`；匿名下载、SHA-256 和镜像验证全部通过。
 
-### Task 6: 发布 GitHub appcast 并完成闭环验证
+### Task 6: 将 appcast 发布到 GitHub `main` 并完成闭环验证
 
 **Files:**
-- Create/Modify on GitHub `updates` branch: `appcast.xml`
+- Create on `main`: `appcast.xml`
 
 **Interfaces:**
 - Consumes: Task 5 已可下载的 GitHub Release DMG，以及 Task 4 的签名 appcast。
-- Produces: `https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml`。
+- Produces: `https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml`。
 
-- [ ] **Step 1: 在临时目录初始化独立的 GitHub `updates` 分支**
-
-```bash
-UPDATES_DIR=$(mktemp -d /private/tmp/openai-dashboard-updates.XXXXXX)
-git init --initial-branch=updates "$UPDATES_DIR"
-git -C "$UPDATES_DIR" remote add origin https://github.com/xbguan/openai-dashboard.git
-```
-
-Expected: 临时仓库当前分支为 `updates`，没有继承 `main` 历史；GitHub 上不存在同名分支，因此后续可用普通推送创建，不需要强推。
-
-- [ ] **Step 2: 写入并检查 appcast**
+- [ ] **Step 1: 将签名清单复制到 `main` 根目录并检查**
 
 ```bash
-cp .build/release/appcast.xml "$UPDATES_DIR/appcast.xml"
-xmllint --noout "$UPDATES_DIR/appcast.xml"
-rg -F 'openai-dashboard-v1.18.0/OpenAI-Dashboard-1.18.0.dmg' "$UPDATES_DIR/appcast.xml"
-rg -F 'sparkle:edSignature=' "$UPDATES_DIR/appcast.xml"
+cp .build/release/appcast.xml appcast.xml
+xmllint --noout appcast.xml
+rg -F 'openai-dashboard-v1.18.0/OpenAI-Dashboard-1.18.0.dmg' appcast.xml
+rg -F 'sparkle:edSignature=' appcast.xml
+test "$(shasum -a 256 appcast.xml | awk '{print $1}')" = "$(shasum -a 256 '.build/release/appcast.xml' | awk '{print $1}')"
 ```
 
-Expected: XML 有效，下载地址和 EdDSA 签名存在。
+Expected: XML 有效，下载地址和 EdDSA 签名存在，根目录文件与构建产物逐字节一致。
 
-- [ ] **Step 3: 提交并推送 `updates` 分支**
+- [ ] **Step 2: 提交并推送 `main/appcast.xml`**
 
 ```bash
-git -C "$UPDATES_DIR" add appcast.xml
-git -C "$UPDATES_DIR" commit -m 'release: publish 1.18.0 appcast'
-git -C "$UPDATES_DIR" push --set-upstream origin updates
+git add appcast.xml
+git commit -m 'release: publish 1.18.0 appcast'
+git push origin main
 ```
 
-Expected: 非强制推送成功并在 GitHub 创建 `updates` 分支。
+Expected: 提交和非强制推送成功；更新清单只在 Release 附件已验证后公开。
 
-- [ ] **Step 4: 验证公开清单与下载闭环**
+- [ ] **Step 3: 验证公开清单与下载闭环**
 
 ```bash
 PUBLIC_APPCAST=$(mktemp /private/tmp/openai-dashboard-appcast.XXXXXX.xml)
-curl --fail --location --output "$PUBLIC_APPCAST" 'https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml'
+curl --fail --location --output "$PUBLIC_APPCAST" 'https://raw.githubusercontent.com/xbguan/openai-dashboard/main/appcast.xml'
 xmllint --noout "$PUBLIC_APPCAST"
 test "$(shasum -a 256 "$PUBLIC_APPCAST" | awk '{print $1}')" = "$(shasum -a 256 '.build/release/appcast.xml' | awk '{print $1}')"
 rg -F 'https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v1.18.0/OpenAI-Dashboard-1.18.0.dmg' "$PUBLIC_APPCAST"
@@ -419,7 +411,7 @@ rg -F 'sparkle:edSignature=' "$PUBLIC_APPCAST"
 
 Expected: 公共清单与本地签名清单逐字节一致，且指向已验证的 Release 附件。
 
-- [ ] **Step 5: 最终仓库与发布状态核对**
+- [ ] **Step 4: 最终仓库与发布状态核对**
 
 ```bash
 git status --short --branch
@@ -429,7 +421,7 @@ gh release view openai-dashboard-v1.18.0 --repo xbguan/openai-dashboard --json t
 git ls-remote gitee refs/heads/master refs/heads/updates refs/tags/openai-dashboard-v1.18.0
 ```
 
-Expected: 本地工作区干净；GitHub `main`、标签、Release 和 appcast 全部可用；Gitee 不存在 `openai-dashboard-v1.18.0` 标签，本次未修改其分支。
+Expected: 本地工作区干净；GitHub `main`、标签、Release 和 `main/appcast.xml` 全部可用；Gitee 不存在 `openai-dashboard-v1.18.0` 标签，本次未修改其分支。
 
 ---
 
