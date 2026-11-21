@@ -375,14 +375,15 @@ Expected: Release 不是草稿或预发布，附件数为 `1`；匿名下载、S
 - Consumes: Task 5 已可下载的 GitHub Release DMG，以及 Task 4 的签名 appcast。
 - Produces: `https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml`。
 
-- [ ] **Step 1: 获取 GitHub `updates` 分支到临时目录**
+- [ ] **Step 1: 在临时目录初始化独立的 GitHub `updates` 分支**
 
 ```bash
 UPDATES_DIR=$(mktemp -d /private/tmp/openai-dashboard-updates.XXXXXX)
-git clone --depth 1 --branch updates https://github.com/xbguan/openai-dashboard.git "$UPDATES_DIR"
+git init --initial-branch=updates "$UPDATES_DIR"
+git -C "$UPDATES_DIR" remote add origin https://github.com/xbguan/openai-dashboard.git
 ```
 
-Expected: 克隆成功且当前分支为 `updates`。若分支不存在，停止发布并报告，不用强推创建。
+Expected: 临时仓库当前分支为 `updates`，没有继承 `main` 历史；GitHub 上不存在同名分支，因此后续可用普通推送创建，不需要强推。
 
 - [ ] **Step 2: 写入并检查 appcast**
 
@@ -400,10 +401,10 @@ Expected: XML 有效，下载地址和 EdDSA 签名存在。
 ```bash
 git -C "$UPDATES_DIR" add appcast.xml
 git -C "$UPDATES_DIR" commit -m 'release: publish 1.18.0 appcast'
-git -C "$UPDATES_DIR" push origin updates
+git -C "$UPDATES_DIR" push --set-upstream origin updates
 ```
 
-Expected: 非强制推送成功。
+Expected: 非强制推送成功并在 GitHub 创建 `updates` 分支。
 
 - [ ] **Step 4: 验证公开清单与下载闭环**
 
