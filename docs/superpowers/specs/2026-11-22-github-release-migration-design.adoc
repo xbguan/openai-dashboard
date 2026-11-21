@@ -1,0 +1,86 @@
+= OpenAI 仪表盘迁移至 GitHub 发布设计
+:toc: left
+:sectnums:
+
+== 背景与目标
+
+Gitee 版本更新服务稳定性不足。本次发布将项目主仓库、Sparkle 更新清单和 DMG 下载地址全部迁移到 GitHub，并发布 `1.18.0`。
+
+本次采用直接切换方案，不为读取 Gitee 更新清单的旧版本提供桥接。现有 `1.17.4`～`1.17.6` 用户需要手动安装一次 `1.18.0`；从 `1.18.0` 开始恢复应用内自动更新。
+
+== 版本与仓库
+
+* `CFBundleShortVersionString`：`1.17.6` → `1.18.0`
+* `CFBundleVersion`：`78` → `79`
+* GitHub 主仓库：`https://github.com/xbguan/openai-dashboard.git`
+* 发布标签：`openai-dashboard-v1.18.0`
+* GitHub 成为本地 `origin`；Gitee 仅保留为历史远端，不再接收本次代码、标签、Release 或更新清单。
+
+== 更新与发布地址
+
+新版应用的 `SUFeedURL` 使用：
+
+----
+https://raw.githubusercontent.com/xbguan/openai-dashboard/updates/appcast.xml
+----
+
+发布脚本生成的 appcast 使用 GitHub Release 下载前缀：
+
+----
+https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v<版本>/
+----
+
+GitHub Release 只附加英文文件名 `OpenAI-Dashboard-1.18.0.dmg`。本地 `dist/` 只保留中文文件名 `OpenAI 仪表盘-1.18.0.dmg`。两个文件内容及 SHA-256 必须一致。
+
+== 修改范围
+
+* `Resources/Info.plist`：更新版本号、构建号和 Sparkle 更新源。
+* `make-dmg.sh`：将 appcast 下载前缀切换到 GitHub Release。
+* `README.adoc` 与渲染后的 `docs/README.html`：更新发布渠道、安装说明和当前版本。
+* `AGENTS.md`：将仓库、Release、更新清单和推送约定切换到 GitHub，并记录旧版本需要手动迁移一次。
+* 本地 Git remote：GitHub 调整为 `origin`，Gitee 保留为 `gitee`。
+
+不修改应用业务功能、界面、凭据存储或正式 App。
+
+== 构建与隔离验收
+
+执行 `./make-dmg.sh --rebuild` 生成新 DMG，并验证：
+
+* `hdiutil verify` 通过。
+* App 与内嵌 Sparkle 组件的 `codesign --verify` 通过。
+* 主程序同时包含 `x86_64` 与 `arm64`。
+* 最低系统版本、动态依赖和 Sparkle EdDSA 签名符合项目规约。
+* `dist/` 只包含 `1.18.0` 的一个中文名 DMG。
+
+所有运行验收使用 `/private/tmp/` 中的测试副本与独立 `--qa-application-support` 目录。验收覆盖全新启动、配置保存与重启读取，以及新版从 GitHub 检查更新的可达性。不得安装、替换、启动或退出 `/Applications/OpenAI 仪表盘.app`。
+
+由于采用直接切换，`1.17.6` 到 `1.18.0` 的应用内自动升级不属于可用路径；用户手动安装 `1.18.0` 后再验证 GitHub 更新链路。
+
+== 发布顺序
+
+. 完成代码、文档、版本号修改和本地验证。
+. 提交变更并将 `main` 推送到 GitHub。
+. 推送 `openai-dashboard-v1.18.0` 标签。
+. 创建 GitHub Release，上传 `.build/release/OpenAI-Dashboard-1.18.0.dmg`。
+. 验证 Release 附件可匿名下载，且其 SHA-256 与 `dist/` 中的 DMG 一致。
+. 将 `.build/release/appcast.xml` 发布到 GitHub `updates` 分支。
+. 验证原始 XML 可匿名访问、签名有效、下载地址指向已可用的 GitHub Release 附件。
+
+更新清单必须最后发布，避免客户端看到尚不可下载的新版本。
+
+== 失败处理
+
+* 构建、签名、架构或隔离验收任一失败：停止推送和发布。
+* GitHub 代码或标签推送失败：不创建 Release。
+* Release 附件或校验失败：不发布 appcast。
+* appcast 发布或匿名访问验证失败：明确报告发布未完成，不声称自动更新可用。
+* 不使用强制推送覆盖 GitHub 或 Gitee 历史。
+
+== 完成标准
+
+* GitHub `main` 与本地发布提交一致，标签指向该提交。
+* GitHub Release 提供可下载且校验一致的 `1.18.0` DMG。
+* GitHub `updates` 分支提供签名有效的 appcast。
+* 新版应用仅使用 GitHub 更新源。
+* Gitee 未产生本次版本的新提交、标签、Release 或 appcast 变更。
+* 正式 App 未被自动安装或操作。
