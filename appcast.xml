@@ -4,15 +4,15 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>OpenAI 仪表盘</title>
         <item>
-            <title>1.18.0</title>
-            <pubDate>Sun, 22 Nov 2026 00:48:27 +0800</pubDate>
-            <sparkle:version>79</sparkle:version>
-            <sparkle:shortVersionString>1.18.0</sparkle:shortVersionString>
+            <title>1.18.1</title>
+            <pubDate>Sun, 22 Nov 2026 18:30:11 +0800</pubDate>
+            <sparkle:version>80</sparkle:version>
+            <sparkle:shortVersionString>1.18.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v1.18.0/OpenAI-Dashboard-1.18.0.dmg" length="3903112" type="application/octet-stream" sparkle:edSignature="ZA4GIP/mZpwu3hgYQTbrSdR4YHUlyGKw8QG50KLu7Yh9mfOrd6PA1CHxRx+o66/kJRPeAHujGCASVHYQWOXjAw=="></enclosure>
+            <enclosure url="https://github.com/xbguan/openai-dashboard/releases/download/openai-dashboard-v1.18.1/OpenAI-Dashboard-1.18.1.dmg" length="3909875" type="application/octet-stream" sparkle:edSignature="1M4oqHQy2HZ/yo5Bwd3qK3HxjFeAYWR1o1WVClRZtN/0x9euU+2kBA3Nm+CstKD6Z44tX0Gg7LOsnlMF+zy6Bg=="></enclosure>
         </item>
     </channel>
 </rss><!-- sparkle-signatures:
-edSignature: xGr9BtKrtKjxHACFlRClVCw14mNnWN2GXY/2BEORN7Be619LxhR/DQndbDJxMHWn5VlBrH7Cjdv+R8o/gxQxBQ==
+edSignature: 6rqUXEQERmCfLny90rTETqXGMJTtM+1xsMuwlRbj/wIugXnGWMwgIMB8mQCn5qHeDKazc59lASrUvx3NudV/Cw==
 length: 1085
 -->
