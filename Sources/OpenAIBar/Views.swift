@@ -1272,8 +1272,9 @@ private struct UpdateCheckToast: View {
         }
         .allowsHitTesting(false)
         .animation(.easeOut(duration: 0.2), value: visible)
-        .task(id: updates.status) {
-            visible = updates.status == .failed || (updates.status == .current && updates.lastCheckWasManual)
+        .task(id: "\(updates.status.toastID):\(updates.noticeRevision)") {
+            visible = updates.lastCheckWasManual
+                && (updates.status == .failed || updates.status == .current)
             guard visible else { return }
             try? await Task.sleep(nanoseconds: 4_000_000_000)
             if !Task.isCancelled { visible = false }
